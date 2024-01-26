@@ -55,18 +55,26 @@ namespace Selu383.SP24.Api.Controllers
             {
                 return BadRequest(hotelDto);
             }
+
             var hotel = new Hotel {
                 
             Name = hotelDto.Name,
             Address = hotelDto.Address,
-
+            
             };
             
             _dataContext.Set<Hotel>().Add(hotel);
             _dataContext.SaveChanges();
 
-            return Ok(hotelDto);
-        }
+            var hoteltoReturn = new HotelDto
+            {
+                Id = hotel.Id,
+                Name = hotel.Name,
+                Address = hotel.Address,
+            };
+
+            return CreatedAtAction(nameof(GetbyId), new { id = hoteltoReturn.Id}, hoteltoReturn );
+                }
 
         [HttpPut ("{id:int}")]
         public IActionResult PutHotel([FromBody]HotelUpdateDto hotelDto, [FromRoute] int id)
@@ -77,6 +85,10 @@ namespace Selu383.SP24.Api.Controllers
             if (targetHotel == null)
             {
                 return NotFound();
+            }
+            if (hotelDto.Name.Length > 120)
+            {
+                return BadRequest(hotelDto);
             }
             targetHotel.Name = hotelDto.Name;
             targetHotel.Address = hotelDto.Address;
@@ -92,6 +104,29 @@ namespace Selu383.SP24.Api.Controllers
             };
             return Ok(hoteltoReturn);
         }
+        [HttpDelete("{id:int}")]
+        public IActionResult DeleteHotel([FromRoute] int id)
+        {
+            var hoteltoDelete = _dataContext.Hotels
+                .FirstOrDefault(x => x.Id == id);
+
+            if (hoteltoDelete == null)
+            {
+                return NotFound();
+            }
+            _dataContext.Hotels.Remove(hoteltoDelete);
+            _dataContext.SaveChanges();
+
+            var hoteltoReturn = new HotelDto
+            {
+                Id = hoteltoDelete.Id,
+                Name = hoteltoDelete.Name,
+                Address = hoteltoDelete.Address,
+            };
+
+            return Ok(hoteltoReturn);
+        }
+
     }
 
 }
