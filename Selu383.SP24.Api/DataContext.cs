@@ -13,6 +13,13 @@ namespace Selu383.SP24.Api
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Hotel>()
+                .Property(x => x.Name)
+                .IsRequired().HasMaxLength(120);
+
+            modelBuilder.Entity<Hotel>()
+                .Property(x => x.Address)
+                .IsRequired();
 
         }
     }
